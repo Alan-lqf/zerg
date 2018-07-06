@@ -9,7 +9,10 @@
 namespace app\api\controller\v1;
 
 
+use app\api\model\Banner as BannerModel;
 use app\api\validate\IDMustBePositiveInteger;
+use app\lib\exception\BannerMissException;
+use think\Exception;
 
 
 class Banner
@@ -20,24 +23,16 @@ class Banner
      */
     public function getBanner($id)
     {
-        (new IDMustBePositiveInteger())->goCheck($id);
-        $c = 1;
+        (new IDMustBePositiveInteger())->goCheck();
 
-//        $data = [
-//            'id' => $id,
-//        ];
-//
-//
-//        $validate = new IDMustBePositiveInteger();
-//
-//        $result = $validate->batch()->check($data);
-//        if ($result){
-//
-//        }
-//        else{
-//
-//        }
-//        var_dump($validate->getError());
+        $banner = BannerModel::getBannerByID($id);
+//        $banner->hidden(['delete_time', 'update_time']);
+        if (!$banner){
+            throw new BannerMissException();
+        }
+
+        return $banner;
+
     }
 
 }
