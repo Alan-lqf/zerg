@@ -6,7 +6,7 @@
  * Time: 22:44
  */
 
-namespace app\api\controller\v1;
+namespace app\api\controller\v2;
 
 
 use app\api\model\Banner as BannerModel;
@@ -22,15 +22,7 @@ class Banner
      */
     public function getBanner($id)
     {
-        (new IDMustBePositiveInteger())->goCheck();
-
-        $banner = BannerModel::getBannerByID($id);
-
-        if (!$banner){
-            throw new BannerMissException();
-        }
-
-        return $banner;
+        return "v2";
 
     }
 
