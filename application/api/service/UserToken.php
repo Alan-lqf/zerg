@@ -30,6 +30,7 @@ class UserToken
         }else{
             $loginFail = array_key_exists('errorcode', $wxResult);
             if ($loginFail){
+                throw
 
             }else{
 
