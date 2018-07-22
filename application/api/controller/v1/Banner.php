@@ -18,7 +18,7 @@ class Banner
 {
     /**
      * @param $id
-     *
+     * @return
      */
     public function getBanner($id)
     {
