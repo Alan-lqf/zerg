@@ -57,6 +57,7 @@ class Product extends BaseModel
         ])
             ->with(['properties'])
             ->find($id);
+
         return $product;
     }
 }
