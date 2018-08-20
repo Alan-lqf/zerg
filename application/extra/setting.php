@@ -6,5 +6,6 @@
  * Time: 16:01
  */
 return [
-    'img_prefix' => 'http://zerg.test/images'
+    'img_prefix' => 'http://zerg.test/images',
+    'token_expire_in' => 7200
 ];
