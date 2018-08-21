@@ -8,7 +8,7 @@
 
 namespace app\api\controller\v1;
 
-use UserToken;
+use app\api\service\UserToken;
 use app\api\validate\TokenGet;
 
 class Token
