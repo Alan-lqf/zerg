@@ -9,14 +9,20 @@
 namespace app\api\controller\v1;
 
 
-use app\api\validate\AddressNew;
-use app\api\service\Token as TokenService;
+use app\api\controller\BaseController;
 use app\api\model\User as UserModel;
+use app\api\service\Token as TokenService;
+use app\api\validate\AddressNew;
 use app\lib\exception\SuccessMessage;
 use app\lib\exception\UserException;
 
-class Address
+class Address extends BaseController
 {
+
+    protected $beforeActionList = [
+        'checkPrimaryScope' => ['only' => 'createOrUpdateAddress']
+    ];
+
     public function createOrUpdateAddress()
     {
 //        (new AddressNew())->goCheck();
@@ -33,11 +39,10 @@ class Address
             throw new UserException();
         }
 
-
         $dataArray = $validate->getDataByRule(input('post.'));
 
-
         $userAddress = $user->address;
+
         if (!$userAddress){
             //通过模型的关联模型新增或更新数据（另一种是用Model::create）
             $user->address()->save($dataArray);
