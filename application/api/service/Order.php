@@ -10,7 +10,9 @@ namespace app\api\service;
 
 
 use app\api\model\Product;
+use app\api\model\UserAddress;
 use app\lib\exception\OrderException;
+use app\lib\exception\UserException;
 
 class Order
 {
@@ -35,16 +37,51 @@ class Order
         }
 
         //开始创建订单
+        $snapOrder = $this->snapOrder($status);
+    }
+
+    //生成订单快照
+    private function snapOrder($status){
+        $snap = [
+            'orderPrice' => 0,
+            'totalCount' => 0,
+            'pStatus' => [],
+            'snapAddress' => null,
+            'snapName' => '',
+            'snapImg' => ''
+        ];
+
+        $snap['orderPrice'] = $status['orderPrice'];
+        $snap['totalCount'] = $status['totalCount'];
+        $snap['pStatus'] = $status['pStatusArray'];
+        $snap['snapAddress'] = json_encode($this->getUserAddress());
+        $snap['snapName'] = $this->products[0]['name'];
+        $snap['snapImg'] = $this->products[0]['main_img_url'];
+
+        if ($this->products[1]){ //商品多于一个，前端展示为 xxx等
+            $snap['snapName'] .= '等';
+        }
+    }
+
+    private function getUserAddress(){
+        $userAddress = UserAddress::where('user_id', '=', $this->uid)
+            ->find();
+        if (!$userAddress){
+            throw new UserException([
+                'msg' => '用户收货地址不存在，下单失败',
+                'errorCode' => 60001
+            ]);
+        }
+        return $userAddress->toArray(); //tips:用模型查出来的是一个对象，需要转换为数组
     }
 
     //订单信息
     private function getOrderStatus(){
         $status = [
             'pass' => true,
-            //订单总价
-            'orderPrice' => 0,
-            //保存订单商品详情
-            'pStatusArray' => []
+            'totalCount' => 0, //订单总数
+            'orderPrice' => 0, //订单总价
+            'pStatusArray' => [] //保存订单商品详情
         ];
 
         foreach ($this->oProducts as $oProduct){
@@ -54,6 +91,7 @@ class Order
             if (!$pStatus['haveStock']){
                 $status['pass'] = false;
             }
+            $status['totalCount'] += $pStatus['count'];
             $status['orderPrice'] += $pStatus['totalPrice'];
             array_push($status['pStatusArray'], $pStatus);
         }
