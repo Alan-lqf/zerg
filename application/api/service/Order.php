@@ -126,6 +126,16 @@ class Order
         return $userAddress->toArray(); //tips:用模型查出来的是一个对象，需要转换为数组
     }
 
+    public function checkOrderStock($orderID)
+    {
+        $oProducts = OrderProduct::where('order_id', '=', $orderID)
+            ->select();
+        $this->oProducts = $oProducts;
+        $this->products = $this->getProductsByOrder($oProducts);
+        $status = $this->getOrderStatus();
+        return $status;
+    }
+
     //订单信息
     private function getOrderStatus(){
         $status = [
