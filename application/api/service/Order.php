@@ -40,7 +40,10 @@ class Order
         }
 
         //开始创建订单
-        $snapOrder = $this->snapOrder($status);
+        $orderSnap = $this->snapOrder($status);
+        $order = $this->createOrder($orderSnap);
+        $order['pass'] = true;
+        return $order;
     }
 
     //生成订单快照
@@ -68,7 +71,7 @@ class Order
 
     private function createOrder($snap){
         try{
-            $orderNo = self::makeOrderNo();
+            $orderNo = self::makeOrderNo(); //TODO this-> 与 self:: 见commit链接
             $order = new OrderModel();
             $order->user_id = $this->uid;
             $order->order_no = $orderNo;
