@@ -15,6 +15,7 @@ use app\api\model\UserAddress;
 use app\lib\exception\OrderException;
 use app\lib\exception\UserException;
 use app\api\model\Order as OrderModel;
+use think\Db;
 use think\Exception;
 
 class Order
@@ -70,6 +71,7 @@ class Order
     }
 
     private function createOrder($snap){
+        Db::startTrans();
         try{
             $orderNo = self::makeOrderNo(); //TODO this-> 与 self:: 见commit链接
             $order = new OrderModel();
@@ -91,6 +93,7 @@ class Order
             }
             $orderProduct = new OrderProduct();
             $orderProduct->saveAll($this->oProducts);  // save 单个  saveAll 数组
+            Db::commit();
             return [
                 'order_no' => $orderNo,
                 'order_id' => $orderID,
@@ -98,6 +101,7 @@ class Order
             ];
 
         }catch (Exception $ex){
+            Db::rollback();
             throw $ex;
         }
 
