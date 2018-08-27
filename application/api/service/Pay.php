@@ -26,6 +26,6 @@ class Pay
 
     public function pay()
     {
-        
+        //TODO ……
     }
 }
