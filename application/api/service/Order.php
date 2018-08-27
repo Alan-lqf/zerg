@@ -9,10 +9,13 @@
 namespace app\api\service;
 
 
+use app\api\model\OrderProduct;
 use app\api\model\Product;
 use app\api\model\UserAddress;
 use app\lib\exception\OrderException;
 use app\lib\exception\UserException;
+use app\api\model\Order as OrderModel;
+use think\Exception;
 
 class Order
 {
@@ -61,6 +64,47 @@ class Order
         if ($this->products[1]){ //商品多于一个，前端展示为 xxx等
             $snap['snapName'] .= '等';
         }
+    }
+
+    private function createOrder($snap){
+        try{
+            $orderNo = self::makeOrderNo();
+            $order = new OrderModel();
+            $order->user_id = $this->uid;
+            $order->order_no = $orderNo;
+            $order->total_price = $snap['orderPrice'];
+            $order->total_count = $snap['totalCount'];
+            $order->snap_img = $snap['snapImg'];
+            $order->snap_name = $snap['snapName'];
+            $order->snap_address = $snap['snapAddress'];
+            $order->snap_items = json_encode($snap['pStatus']);
+
+            $order->save();  // save 单个  saveAll 数组
+
+            $orderID = $order->id;
+            $create_time = $order->create_time;
+            foreach ($this->oProducts as &$p){ //要追加 order_id 字段就需要在 $p 前加上 &
+                $p['order_id'] = $orderID;
+            }
+            $orderProduct = new OrderProduct();
+            $orderProduct->saveAll($this->oProducts);  // save 单个  saveAll 数组
+            return [
+                'order_no' => $orderNo,
+                'order_id' => $orderID,
+                'create_time' => $create_time
+            ];
+
+        }catch (Exception $ex){
+            throw $ex;
+        }
+
+    }
+
+    public static function makeOrderNo()
+    {
+        $yCode = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J' );
+        $orderSn = $yCode[intval(date('Y'))-2017] - strtoupper(dechex(date('m'))).date('d').substr(time(), -5).substr(microtime(), 2, 5).sprintf('%02d', rand(0,99));
+        return $orderSn;
     }
 
     private function getUserAddress(){
