@@ -68,6 +68,7 @@ class Order
         if ($this->products[1]){ //商品多于一个，前端展示为 xxx等
             $snap['snapName'] .= '等';
         }
+        return $snap;
     }
 
     private function createOrder($snap){
@@ -110,7 +111,7 @@ class Order
     public static function makeOrderNo()
     {
         $yCode = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J' );
-        $orderSn = $yCode[intval(date('Y'))-2017] - strtoupper(dechex(date('m'))).date('d').substr(time(), -5).substr(microtime(), 2, 5).sprintf('%02d', rand(0,99));
+        $orderSn = $yCode[intval(date('Y'))-2017].strtoupper(dechex(date('m'))).date('d').substr(time(), -5).substr(microtime(), 2, 5).sprintf('%02d', rand(0,99));
         return $orderSn;
     }
 
@@ -203,7 +204,7 @@ class Order
             array_push($oPIDs, $item['product_id']);
         }
         $products = Product::all($oPIDs)
-            ->visible('id', 'price', 'stock', 'name', 'main_img_url')
+            ->visible(['id', 'price', 'stock', 'name', 'main_img_url'])
             ->toArray();
         return $products;
     }

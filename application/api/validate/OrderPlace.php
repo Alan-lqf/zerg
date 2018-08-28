@@ -42,13 +42,13 @@ class OrderPlace extends BaseValidate
                 'msg' => '商品参数不正确'
             ]);
         }
-        if (!empty($values)){
+        if (empty($values)){
             throw new ParameterException([
                 'msg' => '商品列表不能为空'
             ]);
         }
         foreach ($values as $value){
-            $this->checkProducts($value);
+            $this->checkProduct($value);
         }
         return true;
     }
