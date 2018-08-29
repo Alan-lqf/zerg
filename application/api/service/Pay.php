@@ -17,6 +17,7 @@ use app\api\service\Order as OrderService;
 use app\api\model\Order as OrderModel;
 use app\api\service\Token as TokenService;
 use think\Loader;
+use think\Log;
 
 //  extend/WxPay/WxPay.Api.php
 Loader::import('WxPay.WxPay', EXTEND_PATH, '.Api.php');
@@ -46,15 +47,42 @@ class Pay
         if (!$status){
             return $status;
         }
+        return $this->makeWxPreOrder($status['orderPrice']);
     }
 
-    private function makeWxPreOrder(){
+    private function makeWxPreOrder($totalPrice){
         //openid
         $openid = TokenService::getCurrentTokenVar('openid');
         if (!$openid){
             throw new TokenException();
         }
         $wxOrderData = new \WxPayUnifiedOrder();
+        $wxOrderData->SetOut_trade_no($this->orderNO);
+        $wxOrderData->SetTrade_type('JSAPI');
+        $wxOrderData->SetTotal_fee($totalPrice * 100);
+        $wxOrderData->SetBody('零食商贩');
+        $wxOrderData->SetOpenid($openid);
+        $wxOrderData->SetNotify_url('');
+        return $this->getPaySignature($wxOrderData);
+    }
+
+    private function getPaySignature($wxOrderData){
+        $wxOrder = \WxPayApi::unifiedOrder($wxOrderData);
+        if ($wxOrder['return_code'] != 'SUCCESS' ||
+            $wxOrder['result_code'] != 'SUCCESS')
+        {
+            Log::record($wxOrder, 'error');
+            Log::record('获取预支付订单失败', 'error');
+        }
+        //prepay_id
+        $this->recordPreOrder($wxOrder);
+        //TODO 支付的小程序端讲解八
+        return null;
+    }
+
+    private function recordPreOrder($wxOrder){
+        OrderModel::where('id', '=', $this->orderID)
+            ->update(['prepay_id' => $wxOrder['prepay_id']]);
     }
 
     private function checkOrderValid(){
