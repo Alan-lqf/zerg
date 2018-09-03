@@ -17,7 +17,13 @@ abstract class WxPayConfigInterface
 	 */
 	public abstract function GetAppId();
 	public abstract function GetMerchantId();
-	
+    /**
+     * 以下为视频中使用的信息
+     */
+    const APPID = 'wx426b3015555a46be';
+    const MCHID = '1900009851';
+    const KEY = '8934e7d15453e97507ef794cf7b0519d';
+    const APPSECRET = '7813490da6f1265e4901ffb80afaa36f';
 	
 	//=======【支付相关配置：支付成功回调地址/签名方式】===================================
 	/**
